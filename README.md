@@ -1,5 +1,5 @@
 # Ratwork Mechanism
-A discord bot creating for the Failbetter Games Community discord server.
+A discord bot created for the Failbetter Games Community discord server.
 
 ## Features
 None so far.
