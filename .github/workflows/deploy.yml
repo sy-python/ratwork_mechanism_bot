@@ -19,6 +19,7 @@ jobs:
           username: ${{ secrets.DEPLOYMENT_USER }}
           key: ${{ secrets.SSH_PRIVATE_KEY }}
           script: |
+            set -euo pipefail
             echo "${{ secrets.ENV_VARS }}" > /home/${{ secrets.DEPLOYMENT_USER }}/ratwork_mechanism_bot/.env
 
       - name: Deploy to server
