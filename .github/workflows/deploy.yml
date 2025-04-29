@@ -12,21 +12,14 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v4
       
-      - name: Verify and deploy enviroment variables
+      - name: Deploy enviroment variables
         uses: appleboy/ssh-action@v1.0.0
         with:
           host: ${{ secrets.DEPLOYMENT_HOST }}
           username: ${{ secrets.DEPLOYMENT_USER }}
           key: ${{ secrets.SSH_PRIVATE_KEY }}
           script: |
-            echo "${ secrets.ENV_VARS_JSON }" > env_vars.json
-            if ! jq -e '. | type == "object" and all(.[] | type == "string")' env_vars.json > /dev/null; then
-              echo "Invalid JSON format or not all values are strings"
-              exit 1
-            fi
-            jq -r 'to_entries | .key + "=" + .value' env_vars.json > /home/${{ secrets.DEPLOYMENT_USER }}/ratwork_mechanism_bot/.env
-            rm env_vars.json
-            echo "Environment variables set successfully"
+            echo "${{ secrets.ENV_VARS }}" > /home/${{ secrets.DEPLOYMENT_USER }}/ratwork_mechanism_bot/.envs
 
       - name: Deploy to server
         uses: appleboy/ssh-action@v1.0.0
