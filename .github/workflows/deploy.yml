@@ -11,15 +11,15 @@ jobs:
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
-      
-      - name: Deploy enviroment variables
+
+      - name: Deploy environment variables
         uses: appleboy/ssh-action@v1.0.0
         with:
           host: ${{ secrets.DEPLOYMENT_HOST }}
           username: ${{ secrets.DEPLOYMENT_USER }}
           key: ${{ secrets.SSH_PRIVATE_KEY }}
           script: |
-            echo "${{ secrets.ENV_VARS }}" > /home/${{ secrets.DEPLOYMENT_USER }}/ratwork_mechanism_bot/.envs
+            echo "${{ secrets.ENV_VARS }}" > /home/${{ secrets.DEPLOYMENT_USER }}/ratwork_mechanism_bot/.env
 
       - name: Deploy to server
         uses: appleboy/ssh-action@v1.0.0
@@ -28,7 +28,7 @@ jobs:
           username: ${{ secrets.DEPLOYMENT_USER }}
           key: ${{ secrets.SSH_PRIVATE_KEY }}
           script: |
-            set -e
+            set -euo pipefails
             DEPLOY_USER="${{ secrets.DEPLOYMENT_USER }}"
             cd /home/${DEPLOY_USER}/ratwork_mechanism_bot
             OLD_REVISION=$(git rev-parse HEAD)
