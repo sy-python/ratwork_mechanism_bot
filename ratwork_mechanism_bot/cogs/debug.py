@@ -1,5 +1,3 @@
-import logging
-
 import discord
 
 from .base import AbstractRatworkCog
