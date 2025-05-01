@@ -3,8 +3,6 @@ import dotenv
 import dataclasses
 import os
 
-from .logger import logger  # noqa: F401
-
 dotenv.load_dotenv()
 
 DISCORD_TOKEN = os.getenv("DISCORD_TOKEN")
