@@ -1,7 +1,7 @@
-from .base import AbstractRatworkCog
-from ..config import config
-
 import discord
+
+from .base import AbstractRatworkCog
+from ..config import config, logger
 
 
 class DebugCog(AbstractRatworkCog):
@@ -17,7 +17,7 @@ class DebugCog(AbstractRatworkCog):
         user = self.bot.user
         if user is None:
             raise RuntimeError("User is None after login")
-        print(f"Logged in as {user} (ID: {user.id})")
+        logger.info("Logged in as %s (ID: %s)", user, user.id)
 
     @discord.slash_command(
         name="debug", description="Debug command", guild_ids=[config.test_server_id]
@@ -32,4 +32,5 @@ class DebugCog(AbstractRatworkCog):
         """
         Debug command.
         """
+        logger.info('Debug command called with message: "%s"', message)
         await ctx.respond(message)
