@@ -1,3 +1,5 @@
-from .base import cogs
+from .debug import DebugCog
+
+cogs = [DebugCog]
 
 __all__ = ["cogs"]
