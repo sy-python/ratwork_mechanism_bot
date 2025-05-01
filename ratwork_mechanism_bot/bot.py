@@ -6,6 +6,11 @@ from .cogs import cogs
 
 
 def main():
+    """
+    Initializes and runs the Discord bot with all registered cogs.
+    
+    Creates a Discord bot instance, adds each cog from the cogs collection, and starts the bot using the configured Discord token.
+    """
     intents = discord.Intents.default()
     bot = discord.Bot(intents=intents)
 

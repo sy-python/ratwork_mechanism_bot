@@ -12,7 +12,10 @@ class DebugCog(AbstractRatworkCog):
     @discord.Cog.listener(once=True)
     async def on_ready(self):
         """
-        Called when the bot is ready.
+        Handles the bot's ready event by verifying the user object and printing login details.
+        
+        Raises:
+            RuntimeError: If the bot's user object is None after login.
         """
         user = self.bot.user
         if user is None:
@@ -30,6 +33,10 @@ class DebugCog(AbstractRatworkCog):
     )
     async def debug(self, ctx: discord.ApplicationContext, message: str) -> None:
         """
-        Debug command.
+        Sends a debug message in response to the slash command.
+        
+        Args:
+            ctx: The context of the command invocation.
+            message: The message to send as a response.
         """
         await ctx.respond(message)
