@@ -19,8 +19,8 @@ if missing:
 
 try:
     _TEST_SERVER_ID = int(TEST_SERVER_ID)
-except ValueError:
-    raise ValueError("TEST_SERVER_ID must be an integer")
+except ValueError as e:
+    raise ValueError("TEST_SERVER_ID must be an integer") from e
 
 
 @dataclasses.dataclass(frozen=True, slots=True, kw_only=True)
