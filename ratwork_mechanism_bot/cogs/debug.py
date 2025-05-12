@@ -1,7 +1,7 @@
 import discord
 
 from .base import AbstractRatworkCog
-from ..config import config, logger
+from ..config import config, logger, BotSetupError
 
 
 class DebugCog(AbstractRatworkCog):
@@ -16,7 +16,7 @@ class DebugCog(AbstractRatworkCog):
         """
         user = self.bot.user
         if user is None:
-            raise RuntimeError("User is None after login")
+            raise BotSetupError("User is None after login")
         logger.info("Logged in as %s (ID: %s)", user, user.id)
 
     @discord.slash_command(
