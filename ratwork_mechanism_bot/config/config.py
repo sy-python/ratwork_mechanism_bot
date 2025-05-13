@@ -85,7 +85,7 @@ class Config:
     discord_token: str
     test_server_id: int
     main_server_id: int
-    connection: sqlite3.Connection
+    database_location: str
     menace_emote_role_map: dict[int, int]
     menace_threshold: int
 
@@ -94,7 +94,7 @@ config = Config(
     discord_token=DISCORD_TOKEN,
     test_server_id=_TEST_SERVER_ID,
     main_server_id=_MAIN_SERVER_ID,
-    connection=conn,
+    database_location=DATABASE_LOCATION,
     menace_emote_role_map=_MENACE_EMOTE_ROLE_MAP_PARSED,
     menace_threshold=_MENACE_THRESHOLD,
 )
