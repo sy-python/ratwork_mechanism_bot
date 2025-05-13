@@ -1,0 +1,2 @@
+class BotSetupError(RuntimeError):
+    pass
