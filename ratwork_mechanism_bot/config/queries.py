@@ -10,13 +10,13 @@ CREATE TABLE IF NOT EXISTS resets (
 GET_RESET_QUERY = """
 SELECT last_reset
 FROM resets
-WHERE user_id = $1;
+WHERE user_id = ?;
 """
 
 UPDATE_RESET_QUERY = """
 INSERT INTO resets (user_id, last_reset)
-VALUES ($1, $2)
-ON CONFLICT (user_id) DO UPDATE SET last_reset = $2;
+VALUES (?, ?)
+ON CONFLICT (user_id) DO UPDATE SET last_reset = EXCLUDED.last_reset;
 """
 
 

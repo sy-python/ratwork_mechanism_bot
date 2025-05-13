@@ -66,8 +66,6 @@ try:
 
 except json.JSONDecodeError as e:
     raise ValueError("MENACE_EMOTE_ROLE_MAP must be a valid JSON object") from e
-except AssertionError as e:
-    raise ValueError(e.args[0]) from e
 
 try:
     _MENACE_THRESHOLD = int(MENACE_THRESHOLD)

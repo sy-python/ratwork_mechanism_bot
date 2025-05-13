@@ -1,3 +1,4 @@
+import asyncio
 import datetime
 
 import discord
@@ -29,11 +30,11 @@ class MenaceCog(AbstractRatworkCog):
             emoji_id: roles[role_id]
             for emoji_id, role_id in config.menace_emote_role_map.items()
         }
+        self.role_set = set(self.menace_emote_id_role_map.values())
         logger.info("Menace emote role map: %s", self.menace_emote_id_role_map)
 
     @discord.Cog.listener()
     async def on_raw_reaction_add(self, payload: discord.RawReactionActionEvent):
-        logger.info(payload)
         if payload.emoji.id not in self.menace_emote_id_role_map:
             return
         if payload.guild_id != self.main_server.id:
@@ -46,8 +47,6 @@ class MenaceCog(AbstractRatworkCog):
             )
         )
         message = await channel.fetch_message(payload.message_id)
-        logger.info(message.author)
-        logger.info(type(message.author))
         if not isinstance(message.author, discord.Member):
             author: discord.Member = await discord.utils.get_or_fetch(
                 self.main_server,
@@ -64,14 +63,28 @@ class MenaceCog(AbstractRatworkCog):
                 amount = reaction.count
         if amount == config.menace_threshold:
             role = self.menace_emote_id_role_map[payload.emoji.id]
-            await author.add_roles(role)
-            logger.info(
-                "user %s got %s reacts with %s emoji, added role %s",
-                author.name,
-                amount,
-                payload.emoji.name,
-                role.name,
-            )
+            if role in author.roles:
+                logger.info(
+                    "user %s already has %s role, skipping",
+                    author.name,
+                    role.name,
+                )
+                return
+            try:
+                await author.add_roles(role)
+                logger.info(
+                    "user %s got %s reacts with %s emoji, added role %s",
+                    author.name,
+                    amount,
+                    payload.emoji.name,
+                    role.name,
+                )
+            except discord.Forbidden:
+                logger.info(
+                    "couldn't give %s role to %s, check permissions",
+                    role.name,
+                    author.name,
+                )
 
     @discord.slash_command(
         name="cleanse",
@@ -81,7 +94,42 @@ class MenaceCog(AbstractRatworkCog):
     async def cleanse(self, ctx: discord.ApplicationContext) -> None:
         if not isinstance(ctx.author, discord.Member):
             return  # This should never happen, because this command only works in the main guild
-        now = discord.utils.utcnow().timestamp()
+        loop = asyncio.get_running_loop()
+        try:
+            cleanse_cd = await loop.run_in_executor(None, check_cleanse, ctx)
+        except Exception as e:
+            await ctx.respond("Error occurred. Please try again later.", ephemeral=True)
+            raise
+        if cleanse_cd:
+            await ctx.respond(
+                f"Time the Healer cannot be called more often than once per week. Try again {cleanse_cd}",
+                ephemeral=True,
+            )
+        else:
+            try:
+                roles_to_remove = [
+                    role for role in ctx.author.roles if role in self.role_set
+                ]
+                if not roles_to_remove:
+                    await ctx.respond(
+                        "You are not in the menace areas.", ephemeral=True
+                    )
+                    return
+                await ctx.author.remove_roles(*roles_to_remove)
+                logger.info("user %s cleansed", ctx.author.name)
+                await ctx.respond(
+                    "Memory fades; pain departs; rewards arrive!", ephemeral=True
+                )
+            except discord.Forbidden:
+                logger.info(
+                    "couldn't remove menace roles from %s, check permissions",
+                    ctx.author.name,
+                )
+
+
+def check_cleanse(ctx: discord.ApplicationContext) -> str:
+    now = discord.utils.utcnow().timestamp()
+    try:
         with config.connection as conn:
             curr = conn.cursor()
             curr.execute(queries.get_reset, (ctx.author.id,))
@@ -95,17 +143,14 @@ class MenaceCog(AbstractRatworkCog):
                     allowed_time_string = discord.utils.format_dt(
                         allowed_time_object, style="R"
                     )
-                    await ctx.respond(
-                        f"Time the Healer cannot be called more often than once per week. Try again {allowed_time_string}",
-                        ephemeral=True,
-                    )
                     logger.info(
                         "user %s tried to cleanse too soon, %s seconds left",
                         ctx.author.name,
                         allowed_time - now,
                     )
-                    return
+                    return allowed_time_string
             curr.execute(queries.update_reset, (ctx.author.id, now))
-        await ctx.author.remove_roles(*self.menace_emote_id_role_map.values())
-        await ctx.respond("Memory fades; pain departs; rewards arrive!", ephemeral=True)
-        logger.info("user %s cleansed", ctx.author.name)
+        return ""
+    except Exception as e:
+        logger.error("Database error: %s", e)
+        raise
