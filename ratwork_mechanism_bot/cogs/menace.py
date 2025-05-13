@@ -1,5 +1,6 @@
 import asyncio
 import datetime
+import sqlite3
 
 import discord
 
@@ -130,7 +131,8 @@ class MenaceCog(AbstractRatworkCog):
 def check_cleanse(ctx: discord.ApplicationContext) -> str:
     now = discord.utils.utcnow().timestamp()
     try:
-        with config.connection as conn:
+        connection = sqlite3.connect(config.database_location)
+        with connection as conn:
             curr = conn.cursor()
             curr.execute(queries.get_reset, (ctx.author.id,))
             row = curr.fetchone()
