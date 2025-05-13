@@ -96,6 +96,10 @@ class MenaceCog(AbstractRatworkCog):
         if not isinstance(ctx.author, discord.Member):
             return  # This should never happen, because this command only works in the main guild
         loop = asyncio.get_running_loop()
+        roles_to_remove = [role for role in ctx.author.roles if role in self.role_set]
+        if not roles_to_remove:
+            await ctx.respond("You are not in the menace areas.", ephemeral=True)
+            return
         try:
             cleanse_cd = await loop.run_in_executor(None, check_cleanse, ctx)
         except Exception as e:
@@ -108,14 +112,6 @@ class MenaceCog(AbstractRatworkCog):
             )
         else:
             try:
-                roles_to_remove = [
-                    role for role in ctx.author.roles if role in self.role_set
-                ]
-                if not roles_to_remove:
-                    await ctx.respond(
-                        "You are not in the menace areas.", ephemeral=True
-                    )
-                    return
                 await ctx.author.remove_roles(*roles_to_remove)
                 logger.info("user %s cleansed", ctx.author.name)
                 await ctx.respond(
