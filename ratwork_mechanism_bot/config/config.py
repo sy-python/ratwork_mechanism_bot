@@ -7,7 +7,7 @@ import dotenv
 
 from .queries import SETUP_QUERY
 
-dotenv.load_dotenv()
+dotenv.load_dotenv(override=True)
 
 DISCORD_TOKEN = os.getenv("DISCORD_TOKEN", "")
 TEST_SERVER_ID = os.getenv("TEST_SERVER_ID", "")
