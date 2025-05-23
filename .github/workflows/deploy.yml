@@ -20,7 +20,9 @@ jobs:
           key: ${{ secrets.SSH_PRIVATE_KEY }}
           script: |
             set -euo pipefail
-            echo "${{ secrets.ENV_VARS }}" > /home/${{ secrets.DEPLOYMENT_USER }}/ratwork_mechanism_bot/.env
+            cat << 'EOF' > /home/${{ secrets.DEPLOYMENT_USER }}/ratwork_mechanism_bot/.env
+            ${{ secrets.ENV_VARS }}
+            EOF
 
       - name: Deploy to server
         uses: appleboy/ssh-action@v1.0.0
