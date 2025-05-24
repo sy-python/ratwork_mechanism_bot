@@ -54,6 +54,7 @@ class MenaceCog(AbstractRatworkCog):
                 "member",
                 message.author.id,
             )
+            logger.debug("fetched member %s", author)
         else:
             author = message.author
         amount = 0
@@ -64,22 +65,21 @@ class MenaceCog(AbstractRatworkCog):
                 amount = reaction.count
         if amount == config.menace_threshold:
             role = self.menace_emote_id_role_map[payload.emoji.id]
+            logger.info(
+                "user %s got %s reacts with %s emoji, added role %s",
+                author.name,
+                amount,
+                payload.emoji.name,
+                role.name,
+            )
             if role in author.roles:
                 logger.info(
-                    "user %s already has %s role, skipping",
+                    "user %s already has %s role, or the cache is stale",
                     author.name,
                     role.name,
                 )
-                return
             try:
                 await author.add_roles(role)
-                logger.info(
-                    "user %s got %s reacts with %s emoji, added role %s",
-                    author.name,
-                    amount,
-                    payload.emoji.name,
-                    role.name,
-                )
             except discord.Forbidden:
                 logger.info(
                     "couldn't give %s role to %s, check permissions",
