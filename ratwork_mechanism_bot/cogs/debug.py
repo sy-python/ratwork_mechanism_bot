@@ -1,7 +1,6 @@
 import discord
 
-from .base import AbstractRatworkCog
-from ..config import config, logger, BotSetupError
+from ..config import config, logger, BotSetupError, AbstractRatworkCog
 
 
 class DebugCog(AbstractRatworkCog):
@@ -20,7 +19,7 @@ class DebugCog(AbstractRatworkCog):
         logger.info("Logged in as %s (ID: %s)", user, user.id)
 
     @discord.slash_command(
-        name="debug", description="Debug command", guild_ids=[config.test_server_id]
+        name="debug", description="Debug command", guild_ids=[config.server_id]
     )
     @discord.option(
         name="message",

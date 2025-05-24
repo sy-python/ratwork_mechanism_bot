@@ -3,12 +3,14 @@ import sys
 import discord
 
 from .config import config, logger, BotSetupError
-from .cogs import cogs
+from .cogs import development_cogs, production_cogs
 
 
 def main():
     intents = discord.Intents.default()
     bot = discord.Bot(intents=intents)
+
+    cogs = production_cogs if config.environment == "production" else development_cogs
 
     for cog in cogs:
         bot.add_cog(cog(bot))
