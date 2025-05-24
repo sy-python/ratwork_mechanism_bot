@@ -4,8 +4,7 @@ import sqlite3
 
 import discord
 
-from .base import AbstractRatworkCog
-from ..config import config, logger, queries, BotSetupError
+from ..config import config, logger, queries, BotSetupError, AbstractRatworkCog
 
 WEEK = 60 * 60 * 24 * 7
 
@@ -16,7 +15,7 @@ class MenaceCog(AbstractRatworkCog):
         self.main_server: discord.Guild = await discord.utils.get_or_fetch(
             self.bot,
             "guild",
-            config.main_server_id,
+            config.server_id,
         )
         logger.info("Main server: %s", self.main_server.name)
         role_ids = set(config.menace_emote_role_map.values())
@@ -90,7 +89,7 @@ class MenaceCog(AbstractRatworkCog):
     @discord.slash_command(
         name="cleanse",
         description="Free yourself from the menace areas",
-        guild_ids=[config.main_server_id],
+        guild_ids=[config.server_id],
     )
     async def cleanse(self, ctx: discord.ApplicationContext) -> None:
         if not isinstance(ctx.author, discord.Member):
@@ -127,7 +126,7 @@ class MenaceCog(AbstractRatworkCog):
 def check_cleanse(ctx: discord.ApplicationContext) -> str:
     now = discord.utils.utcnow().timestamp()
     try:
-        connection = sqlite3.connect(config.database_location)
+        connection = config.connector.get_connection()
         with connection as conn:
             curr = conn.cursor()
             curr.execute(queries.get_reset, (ctx.author.id,))

@@ -1,6 +1,7 @@
 from .debug import DebugCog
 from .menace import MenaceCog
 
-cogs = [DebugCog, MenaceCog]
+development_cogs = (DebugCog, MenaceCog)
+production_cogs = (MenaceCog,)
 
-__all__ = ["cogs"]
+__all__ = ("development_cogs", "production_cogs")

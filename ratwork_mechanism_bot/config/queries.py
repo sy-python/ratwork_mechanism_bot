@@ -1,4 +1,4 @@
-import dataclasses
+from .types import QueryHolder
 
 SETUP_QUERY = """
 CREATE TABLE IF NOT EXISTS resets (
@@ -18,14 +18,6 @@ INSERT INTO resets (user_id, last_reset)
 VALUES (?, ?)
 ON CONFLICT (user_id) DO UPDATE SET last_reset = EXCLUDED.last_reset;
 """
-
-
-@dataclasses.dataclass(frozen=True, slots=True, kw_only=True)
-class QueryHolder:
-    setup: str
-    get_reset: str
-    update_reset: str
-
 
 queries = QueryHolder(
     setup=SETUP_QUERY,

@@ -1,4 +1,3 @@
-import dataclasses
 import json
 import os
 import sqlite3
@@ -6,23 +5,24 @@ import sqlite3
 import dotenv
 
 from .queries import SETUP_QUERY
+from .types import Config, Connector
 
 dotenv.load_dotenv(override=True)
 
 DISCORD_TOKEN = os.getenv("DISCORD_TOKEN", "")
-TEST_SERVER_ID = os.getenv("TEST_SERVER_ID", "")
-MAIN_SERVER_ID = os.getenv("MAIN_SERVER_ID", "")
+SERVER_ID = os.getenv("SERVER_ID", "")
 DATABASE_LOCATION = os.getenv("DATABASE_LOCATION", "")
 MENACE_EMOTE_ROLE_MAP = os.getenv("MENACE_EMOTE_ROLE_MAP", "")
 MENACE_THRESHOLD = os.getenv("MENACE_THRESHOLD", "")
+ENVIRONMENT = os.getenv("ENVIRONMENT", "")
 
 required_envars = {
     "DISCORD_TOKEN": DISCORD_TOKEN,
-    "TEST_SERVER_ID": TEST_SERVER_ID,
-    "MAIN_SERVER_ID": MAIN_SERVER_ID,
+    "SERVER_ID": SERVER_ID,
     "DATABASE_LOCATION": DATABASE_LOCATION,
     "MENACE_EMOTE_ROLE_MAP": MENACE_EMOTE_ROLE_MAP,
     "MENACE_THRESHOLD": MENACE_THRESHOLD,
+    "ENVIRONMENT": ENVIRONMENT,
 }
 
 missing = [var for var, value in required_envars.items() if value == ""]
@@ -30,14 +30,9 @@ if missing:
     raise ValueError(f"Missing environment variables: {', '.join(missing)}")
 
 try:
-    _TEST_SERVER_ID = int(TEST_SERVER_ID)
+    _SERVER_ID = int(SERVER_ID)
 except ValueError as e:
-    raise ValueError("TEST_SERVER_ID must be an integer") from e
-
-try:
-    _MAIN_SERVER_ID = int(MAIN_SERVER_ID)
-except ValueError as e:
-    raise ValueError("MAIN_SERVER_ID must be an integer") from e
+    raise ValueError("SERVER_ID must be an integer") from e
 
 try:
     _MENACE_EMOTE_ROLE_MAP = json.loads(MENACE_EMOTE_ROLE_MAP)
@@ -72,29 +67,27 @@ try:
 except ValueError as e:
     raise ValueError("MENACE_THRESHOLD must be an integer") from e
 
+if ENVIRONMENT not in ("development", "production"):
+    raise ValueError("ENVIRONMENT must be development or production")
+
+connector = Connector(
+    database_location=DATABASE_LOCATION,
+    echo_queries=False,
+)
+
+config = Config(
+    discord_token=DISCORD_TOKEN,
+    server_id=_SERVER_ID,
+    connector=connector,
+    menace_emote_role_map=_MENACE_EMOTE_ROLE_MAP_PARSED,
+    menace_threshold=_MENACE_THRESHOLD,
+    environment=ENVIRONMENT,
+)
+
+
 try:
-    conn = sqlite3.connect(DATABASE_LOCATION)
+    conn = connector.get_connection()
     with conn:
         conn.executescript(SETUP_QUERY)
 except sqlite3.Error as e:
     raise RuntimeError("Database setup failed") from e
-
-
-@dataclasses.dataclass(frozen=True, slots=True, kw_only=True)
-class Config:
-    discord_token: str
-    test_server_id: int
-    main_server_id: int
-    database_location: str
-    menace_emote_role_map: dict[int, int]
-    menace_threshold: int
-
-
-config = Config(
-    discord_token=DISCORD_TOKEN,
-    test_server_id=_TEST_SERVER_ID,
-    main_server_id=_MAIN_SERVER_ID,
-    database_location=DATABASE_LOCATION,
-    menace_emote_role_map=_MENACE_EMOTE_ROLE_MAP_PARSED,
-    menace_threshold=_MENACE_THRESHOLD,
-)

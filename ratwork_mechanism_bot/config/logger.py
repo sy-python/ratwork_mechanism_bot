@@ -6,7 +6,7 @@ import os
 
 logger = logging.getLogger("ratwork_mechanism_bot")
 logger.propagate = False
-logger.setLevel(logging.INFO)
+logger.setLevel(logging.DEBUG)
 
 formatter = logging.Formatter("%(asctime)s - %(name)s - %(levelname)s - %(message)s")
 
@@ -19,4 +19,5 @@ file_handler = handlers.TimedRotatingFileHandler(
     os.path.join("logs", "ratwork_mechanism_bot.log"), when="midnight", backupCount=7
 )
 file_handler.setFormatter(formatter)
+file_handler.setLevel(logging.INFO)
 logger.addHandler(file_handler)
