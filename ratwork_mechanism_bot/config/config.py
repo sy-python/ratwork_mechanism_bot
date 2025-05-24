@@ -86,8 +86,7 @@ config = Config(
 
 
 try:
-    conn = connector.get_connection()
-    with conn:
+    with connector.connection() as conn:
         conn.executescript(SETUP_QUERY)
 except sqlite3.Error as e:
     raise RuntimeError("Database setup failed") from e

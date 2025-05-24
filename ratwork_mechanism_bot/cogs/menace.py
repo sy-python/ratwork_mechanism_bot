@@ -126,8 +126,7 @@ class MenaceCog(AbstractRatworkCog):
 def check_cleanse(ctx: discord.ApplicationContext) -> str:
     now = discord.utils.utcnow().timestamp()
     try:
-        connection = config.connector.get_connection()
-        with connection as conn:
+        with config.connector.connection() as conn:
             curr = conn.cursor()
             curr.execute(queries.get_reset, (ctx.author.id,))
             row = curr.fetchone()

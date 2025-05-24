@@ -1,6 +1,7 @@
-import dataclasses
+from contextlib import contextmanager
+from dataclasses import dataclass
 import sqlite3
-from typing import Literal
+from typing import Generator, Literal
 
 import discord
 
@@ -16,19 +17,24 @@ class AbstractRatworkCog(discord.Cog):
         self.bot = bot
 
 
-@dataclasses.dataclass(frozen=True, slots=True, kw_only=True)
+@dataclass(frozen=True, slots=True, kw_only=True)
 class Connector:
     database_location: str
     echo_queries: bool
 
-    def get_connection(self) -> sqlite3.Connection:
+    @contextmanager
+    def connection(self) -> Generator[sqlite3.Connection, None, None]:
         conn = sqlite3.connect(self.database_location)
         if self.echo_queries:
             conn.set_trace_callback(logger.debug)
-        return conn
+        try:
+            with conn:
+                yield conn
+        finally:
+            conn.close()
 
 
-@dataclasses.dataclass(frozen=True, slots=True, kw_only=True)
+@dataclass(frozen=True, slots=True, kw_only=True)
 class Config:
     discord_token: str
     server_id: int
@@ -38,7 +44,7 @@ class Config:
     environment: Literal["development", "production"]
 
 
-@dataclasses.dataclass(frozen=True, slots=True, kw_only=True)
+@dataclass(frozen=True, slots=True, kw_only=True)
 class QueryHolder:
     setup: str
     get_reset: str
