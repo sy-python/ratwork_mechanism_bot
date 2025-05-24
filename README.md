@@ -5,7 +5,7 @@ A discord bot created for the Failbetter Games Community discord server.
 
 ## Features
 
-Whenever a user's message amasses enough reactions, the bot will automatically assign them a role the corresponds to the reacted emote.
+Whenever a user's message amasses enough reactions, the bot will automatically assign them a role that corresponds to the reacted emote.
 The user can remove those roles once every week using the `/cleanse` command.
 
 ## Requirements
@@ -34,11 +34,11 @@ The user can remove those roles once every week using the `/cleanse` command.
 
     ```
     DISCORD_TOKEN=(Your Discord bot token)
-    SERVER_ID = (The ID of the server you want to run the bot in)
-    DATABASE_LOCATION = (The path to the sqlite database file, reccommended to be in the same directory as the bot)
-    MENACE_EMOTE_ROLE_MAP = (A JSON string mapping emote IDs to role IDs)
-    MENACE_THRESHOLD = (The number of reactions required to trigger a menace)
-    ENVIRONMENT = (The environment the bot is running in, either "development" or "production")
+    SERVER_ID=(The ID of the server you want to run the bot in)
+    DATABASE_LOCATION=(The path to the SQLite database file, reccommended to be in the same directory as the bot)
+    MENACE_EMOTE_ROLE_MAP=(A JSON string mapping emote IDs to role IDs)
+    MENACE_THRESHOLD=(The number of reactions required to trigger a menace)
+    ENVIRONMENT=(The environment the bot is running in, either "development" or "production")
     ```
 
 4. Run the bot
